@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"git.corvisa.com/uc/uc_migration/viewmodels"
 )
 
 func main() {
 
-	// getting the pointer to templates files
+	// getting the pointer to templates files or cache
 	templates := populateTemplates()
 
 	http.HandleFunc("/",
@@ -20,9 +22,16 @@ func main() {
 			template := templates.Lookup(requestedFile + ".html")
 
 			var context interface{} = nil
+			switch requestedFile {
+			case "apps":
+				context = viewmodels.GetApps(w, req)
+			case "index":
+				context = nil
+			}
 
 			if template != nil {
-				// here we inject data to the template but right now its nil
+				// here we inject data to the template as context object
+				// we will put the structs to store data in viewmodel section of the project and then inject in the context object
 				template.Execute(w, context)
 			} else {
 				w.WriteHeader(404)
