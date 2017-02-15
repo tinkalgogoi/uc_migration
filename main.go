@@ -31,7 +31,7 @@ func main() {
 
 			if template != nil {
 				// here we inject data to the template as context object
-				// we will put the structs to store data in viewmodel section of the project and then inject in the context object
+				// we will get the data to store in viewmodel section of the project and then inject in the context object
 				template.Execute(w, context)
 			} else {
 				w.WriteHeader(404)

@@ -36,133 +36,21 @@
             <h1>UC Apps Migration</h1>
             <div id="wrapper">
                 <div id="steps">
-                    <form id="formElem" name="formElem" action="" method="post">
+                    <form id="formElem" name="formElem" action="/index" method="post">
+                      {{range .}}
                         <fieldset class="step">
-                            <legend>App1</legend>
-                            <p>
-                                <label for="username">User name</label>
-                                <input id="username" name="username" />
-                            </p>
-                            <p>
-                                <label for="email">Email</label>
-                                <input id="email" name="email" placeholder="info@tympanus.net" type="email" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="password">Password</label>
-                                <input id="password" name="password" type="password" AUTOCOMPLETE=OFF />
-                            </p>
+                            <legend>App...</legend>
+
+                              {{ range $key, $value := . }}
+                                <p>
+                                  <label for="fill">{{ $key }}</label>
+                                  <input id="fill" name="{{ $key }}" type="text" value="{{ $value }}" AUTOCOMPLETE=OFF />
+                                </p>
+                              {{ end }}
+
                         </fieldset>
-                        <fieldset class="step">
-                            <legend>App2</legend>
-                            <p>
-                                <label for="name">Full Name</label>
-                                <input id="name" name="name" type="text" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="country">Country</label>
-                                <input id="country" name="country" type="text" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="phone">Phone</label>
-                                <input id="phone" name="phone" placeholder="e.g. +351215555555" type="tel" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="website">Website</label>
-                                <input id="website" name="website" placeholder="e.g. http://www.codrops.com" type="tel" AUTOCOMPLETE=OFF />
-                            </p>
-                        </fieldset>
-                        <fieldset class="step">
-                            <legend>App3</legend>
-                            <p>
-                                <label for="cardtype">Card</label>
-                                <select id="cardtype" name="cardtype">
-                                    <option>Visa</option>
-                                    <option>Mastercard</option>
-                                    <option>American Express</option>
-                                </select>
-                            </p>
-                            <p>
-                                <label for="cardnumber">Card number</label>
-                                <input id="cardnumber" name="cardnumber" type="number" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="secure">Security code</label>
-                                <input id="secure" name="secure" type="number" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="namecard">Name on Card</label>
-                                <input id="namecard" name="namecard" type="text" AUTOCOMPLETE=OFF />
-                            </p>
-                        </fieldset>
-                        <fieldset class="step">
-                            <legend>App4</legend>
-                            <p>
-                                <label for="newsletter">Newsletter</label>
-                                <select id="newsletter" name="newsletter">
-                                    <option value="Daily" selected>Daily</option>
-                                    <option value="Weekly">Weekly</option>
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Never">Never</option>
-                                </select>
-                            </p>
-                            <p>
-                                <label for="updates">Updates</label>
-                                <select id="updates" name="updates">
-                                    <option value="1" selected>Package 1</option>
-                                    <option value="2">Package 2</option>
-                                    <option value="0">Don't send updates</option>
-                                </select>
-                            </p>
-							              <p>
-                                <label for="tagname">Newsletter Tag</label>
-                                <input id="tagname" name="tagname" type="text" AUTOCOMPLETE=OFF />
-                            </p>
-                        </fieldset>
-                        <fieldset class="step">
-                            <legend>App5</legend>
-                            <p>
-                                <label for="username">User name</label>
-                                <input id="username" name="username" />
-                            </p>
-                            <p>
-                                <label for="email">Email</label>
-                                <input id="email" name="email" placeholder="info@tympanus.net" type="email" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="password">Password</label>
-                                <input id="password" name="password" type="password" AUTOCOMPLETE=OFF />
-                            </p>
-                        </fieldset>
-                        <fieldset class="step">
-                            <legend>App6</legend>
-                            <p>
-                                <label for="username">User name</label>
-                                <input id="username" name="username" />
-                            </p>
-                            <p>
-                                <label for="email">Email</label>
-                                <input id="email" name="email" placeholder="info@tympanus.net" type="email" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="password">Password</label>
-                                <input id="password" name="password" type="password" AUTOCOMPLETE=OFF />
-                            </p>
-                        </fieldset>
-                        <fieldset class="step">
-                            <legend>App7</legend>
-                            <p>
-                                <label for="username">User name</label>
-                                <input id="username" name="username" />
-                            </p>
-                            <p>
-                                <label for="email">Email</label>
-                                <input id="email" name="email" placeholder="info@tympanus.net" type="email" AUTOCOMPLETE=OFF />
-                            </p>
-                            <p>
-                                <label for="password">Password</label>
-                                <input id="password" name="password" type="password" AUTOCOMPLETE=OFF />
-                            </p>
-                        </fieldset>
+                      {{end}}
+
                         <fieldset class="step">
                             <legend>Migrate UC Apps</legend>
                             <p class="submit">
@@ -173,30 +61,14 @@
                 </div>
                 <div id="navigation" style="display:none;">
                     <ul>
-                        <li class="selected">
-                            <a href="#">App1</a>
-                        </li>
-                        <li>
-                            <a href="#">App2</a>
-                        </li>
-                        <li>
-                            <a href="#">App3</a>
-                        </li>
-                        <li>
-                            <a href="#">App4</a>
-                        </li>
-                        <li>
-                            <a href="#">App5</a>
-                        </li>
-                        <li>
-                            <a href="#">App6</a>
-                        </li>
-                        <li>
-                            <a href="#">App7</a>
-                        </li>
-						            <li>
-                            <a href="#">Migrate</a>
-                        </li>
+                      {{range .}}
+                      <li>
+                          <a href="#">App...</a>
+                      </li>
+                      {{end}}
+						           <li>
+                          <a href="#">Migrate</a>
+                       </li>
                     </ul>
                 </div>
             </div>
