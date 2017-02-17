@@ -11,6 +11,7 @@ import (
 var Apps map[string]interface{}
 
 func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} {
+	// marathon ip also have to be imported to html form
 	marathonIP := "http://10.198.161.41:8080/v2/apps"
 	//marathonIP := "http://marathon-dev.mci01-uce.uce.corvisa.net:8080/v2/apps"
 
@@ -55,6 +56,8 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 			count++
 		}
 		m2["id"+strconv.Itoa(j)] = appId[j].(string)
+		// newID is required to edit the app id
+		m2[appId[j].(string)+"newID"] = appId[j]
 		for key, value := range m1 {
 			m2[appId[j].(string)+key] = value
 		}
