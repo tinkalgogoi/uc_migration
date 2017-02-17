@@ -1,6 +1,7 @@
 package viewmodels
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,6 +14,7 @@ var newAppsSlice []map[string]interface{}
 var oldAppsSlice map[string]interface{}
 var src string
 var tar string
+var marathonIP string
 
 func MigrateApps(w http.ResponseWriter, r *http.Request) interface{} {
 	//marathonIP := "http://10.198.161.41:8080/v2/apps"
@@ -60,16 +62,14 @@ func MigrateApps(w http.ResponseWriter, r *http.Request) interface{} {
 
 	getOldApps()
 	createNewApp()
-	fmt.Println(oldAppsSlice)
-
-	//fmt.Println(newAppsSlice)
+	postApp()
 
 	return "Successfully migrated the UC apps"
 }
 
 // func for original apps for the environment
 func getOldApps() map[string]interface{} {
-	marathonIP := "http://10.198.161.41:8080/v2/apps"
+	marathonIP = "http://10.198.161.41:8080/v2/apps"
 	marathonURL := marathonIP + "?id=" + src
 	res, err := http.Get(marathonURL)
 	if err != nil {
@@ -104,15 +104,59 @@ func createNewApp() map[string]interface{} {
 				// deleting unwanted id and oldID values from app env
 				delete(newAppsSlice[j], "id")
 				delete(newAppsSlice[j], "newID")
+
 				// setting my new evrionment against old environment
 				set(newAppsSlice[j], oldAppsSlice, "apps", i, "env")
 			}
 		}
 
 		// remove attributes causing problem on posting maarathon app
+		//convertToMapSlice := oldAppsSlice["apps"].(map[string]interface{})
+		//delete(oldAppsSlice["apps"].(interface{})[i], "version")
+		deleteKey(oldAppsSlice, "apps", i, "version")
 	}
-
+	//fmt.Println(oldAppsSlice)
 	return oldAppsSlice // this old map is now populated with new values
 }
 
 // post the new app to marathon
+func postApp() interface{} {
+	// use groups url as we might have groups inside our app
+	marathonURL := "http://10.198.161.41:8080/v2/groups"
+	appJson, err := json.Marshal(oldAppsSlice)
+	if err != nil {
+		fmt.Printf("err : %s", err)
+	}
+
+	fmt.Println(string(appJson))
+	resp, err := http.Post(marathonURL, "application/json", bytes.NewBuffer(appJson))
+	if err != nil {
+		fmt.Printf("err : %s", err)
+	}
+	fmt.Println("response Status:", resp.Status)
+	fmt.Print(resp.Body)
+	return nil
+}
+
+func deleteKey(m interface{}, path ...interface{}) {
+	for i, p := range path {
+		last := i == len(path)-1
+		switch idx := p.(type) {
+		case string:
+			if last {
+				//m.(map[string]interface{})[idx] = v
+				delete(m.(map[string]interface{}), "version")
+			} else {
+				m = m.(map[string]interface{})[idx]
+			}
+		// zzzzzzzzzzzz
+		case int:
+			if last {
+				//m.([]interface{})[idx] = v
+				delete(m.(map[string]interface{}), "version")
+			} else {
+				m = m.([]interface{})[idx]
+			}
+		}
+	}
+}
