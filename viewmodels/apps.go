@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 var Apps map[string]interface{}
 
 func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} {
 	marathonIP := "http://10.198.161.41:8080/v2/apps"
-
-	m := make(map[string]interface{})
+	//marathonIP := "http://marathon-dev.mci01-uce.uce.corvisa.net:8080/v2/apps"
 
 	err := req.ParseForm()
 	if err != nil {
@@ -20,8 +20,8 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 	}
 
 	src := req.PostFormValue("source")
-	//tar := req.PostFormValue("target")
-	// put some strictly matching query for the rest call
+	tar := req.PostFormValue("target")
+	// put some strict matching query for the rest call
 	marathonURL := marathonIP + "?id=" + src
 	res, err := http.Get(marathonURL)
 	if err != nil {
@@ -35,20 +35,38 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 	}
 
 	json.Unmarshal(body, &Apps)
-	//fmt.Println(Apps)
+	m1 := make(map[string]interface{})
+	m2 := make(map[string]interface{})
+	var appId []interface{}
 	var appsSlice []map[string]interface{}
-	// Getting each map at the apps env field
+	var count int
+	j := 0
 	for i := range Apps["apps"].([]interface{}) {
-		// fmt.Println(get(Apps, "apps", i, "id"))
-		// fmt.Println(get(Apps, "apps", i, "env"))
-		m = get(Apps, "apps", i, "env").(map[string]interface{})
-		m["id"] = get(Apps, "apps", i, "id")
-		appsSlice = append(appsSlice, m)
+		// Getting each app as map at the apps env field
+		m1 = get(Apps, "apps", i, "env").(map[string]interface{})
+		// what if env has also key as id
+		appId = append(appId, get(Apps, "apps", i, "id"))
+
+		// creating new map of each apps with id appended n few extra stuff
+		// adding src n tar in 1st app map
+		if count == 0 {
+			m2["source"] = src
+			m2["target"] = tar
+			count++
+		}
+		m2["id"+strconv.Itoa(j)] = appId[j].(string)
+		for key, value := range m1 {
+			m2[appId[j].(string)+key] = value
+		}
+		appsSlice = append(appsSlice, m2)
+		j++
+		m2 = make(map[string]interface{})
 	}
 
 	return appsSlice
 }
 
+// get set to nested maps
 func get(m interface{}, path ...interface{}) interface{} {
 	for _, p := range path {
 		switch idx := p.(type) {

@@ -26,7 +26,7 @@ func main() {
 			case "apps":
 				context = viewmodels.GetApps(w, req)
 			case "index":
-				context = nil
+				context = viewmodels.MigrateApps(w, req)
 			}
 
 			if template != nil {
