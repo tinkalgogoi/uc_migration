@@ -46,7 +46,7 @@ func MigrateApps(w http.ResponseWriter, r *http.Request) interface{} {
 					// matching id with map keys
 					if idSlices[i] == k[:len(idSlices[i])] {
 						// getting other part of env attribute string which doesn't match with id
-						modifiedApp[k[len(idSlices[i]):len(k)]] = v
+						modifiedApp[k[len(idSlices[i]):len(k)]] = strings.Join(v, "") // converting v slice to string or else it will be marathon error since it will look like json array []
 					}
 				}
 			}
@@ -62,14 +62,14 @@ func MigrateApps(w http.ResponseWriter, r *http.Request) interface{} {
 
 	getOldApps()
 	createNewApp()
-	postApp()
+	putApp()
 
 	return "Successfully migrated the UC apps"
 }
 
 // func for original apps for the environment
 func getOldApps() map[string]interface{} {
-	marathonIP = "http://10.198.161.41:8080/v2/apps"
+	marathonIP = "http://10.198.161.42:8080/v2/apps"
 	marathonURL := marathonIP + "?id=" + src
 	res, err := http.Get(marathonURL)
 	if err != nil {
@@ -98,10 +98,9 @@ func createNewApp() map[string]interface{} {
 		for j := range newAppsSlice { // code can be refactored as we are matching each app with modified app
 			// matching the old ids of both app
 			if newAppsSlice[j]["id"] == appId {
-				//setting the new id to the particular app
-				//fmt.Printf("ids are : %s", newAppsSlice[j]["id"])
+				//setting the new id to the particular app id field of oldAppsSlice
 				set(newAppsSlice[j]["newID"], oldAppsSlice, "apps", i, "id")
-				// deleting unwanted id and oldID values from app env
+				// deleting unwanted id and oldID values from app env of New app before merging to oldAppsSlice
 				delete(newAppsSlice[j], "id")
 				delete(newAppsSlice[j], "newID")
 
@@ -111,8 +110,6 @@ func createNewApp() map[string]interface{} {
 		}
 
 		// remove attributes causing problem on posting maarathon app
-		//convertToMapSlice := oldAppsSlice["apps"].(map[string]interface{})
-		//delete(oldAppsSlice["apps"].(interface{})[i], "version")
 		deleteKey(oldAppsSlice, "apps", i, "version")
 	}
 	//fmt.Println(oldAppsSlice)
@@ -120,21 +117,24 @@ func createNewApp() map[string]interface{} {
 }
 
 // post the new app to marathon
-func postApp() interface{} {
+func putApp() interface{} {
 	// use groups url as we might have groups inside our app
-	marathonURL := "http://10.198.161.41:8080/v2/groups"
+	marathonURL := "http://10.198.161.42:8080/v2/groups"
 	appJson, err := json.Marshal(oldAppsSlice)
 	if err != nil {
 		fmt.Printf("err : %s", err)
 	}
 
-	fmt.Println(string(appJson))
-	resp, err := http.Post(marathonURL, "application/json", bytes.NewBuffer(appJson))
+	//fmt.Println(string(appJson))
+	//resp, err := http.Post(marathonURL, "application/json", bytes.NewBuffer(appJson))
+	client := &http.Client{}
+	request, err := http.NewRequest("PUT", marathonURL, bytes.NewBuffer(appJson))
+	response, err := client.Do(request)
+
 	if err != nil {
 		fmt.Printf("err : %s", err)
 	}
-	fmt.Println("response Status:", resp.Status)
-	fmt.Print(resp.Body)
+	fmt.Println("response Status:", response.Status)
 	return nil
 }
 
@@ -144,7 +144,6 @@ func deleteKey(m interface{}, path ...interface{}) {
 		switch idx := p.(type) {
 		case string:
 			if last {
-				//m.(map[string]interface{})[idx] = v
 				delete(m.(map[string]interface{}), "version")
 			} else {
 				m = m.(map[string]interface{})[idx]
@@ -152,8 +151,9 @@ func deleteKey(m interface{}, path ...interface{}) {
 		// zzzzzzzzzzzz
 		case int:
 			if last {
-				//m.([]interface{})[idx] = v
-				delete(m.(map[string]interface{}), "version")
+				// need to find a way to delete a type []interface{} which holds other maps (these are json arrays)
+				// delete needs a map as parameter to delete, not []interface{} type
+				fmt.Println("zzzzzzzzzzzzzz")
 			} else {
 				m = m.([]interface{})[idx]
 			}

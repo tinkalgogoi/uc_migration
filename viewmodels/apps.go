@@ -12,7 +12,7 @@ var Apps map[string]interface{}
 
 func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} {
 	// marathon ip also have to be imported to html form
-	marathonIP := "http://10.198.161.41:8080/v2/apps"
+	marathonIP := "http://10.198.161.42:8080/v2/apps"
 	//marathonIP := "http://marathon-dev.mci01-uce.uce.corvisa.net:8080/v2/apps"
 
 	err := req.ParseForm()
@@ -35,7 +35,10 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 		fmt.Printf("err : %s", err)
 	}
 
+	// returns nested map where the internal maps with keys will be of type map[string]interface{}
+	// and the json arrays will be of type []interface which can be accessed through indices
 	json.Unmarshal(body, &Apps)
+	fmt.Println(Apps)
 	m1 := make(map[string]interface{})
 	m2 := make(map[string]interface{})
 	var appId []interface{}
