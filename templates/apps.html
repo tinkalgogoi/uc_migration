@@ -35,6 +35,18 @@
         <div id="content">
             <h1>UC Apps Migration</h1>
             <div id="wrapper">
+                <div id="navigation" style="display:none;">
+                    <ul>
+                      {{range .}}
+                      <li>
+                          <a href="#">App...</a>
+                      </li>
+                      {{end}}
+                       <li>
+                          <a href="#">Migrate</a>
+                       </li>
+                    </ul>
+                </div>
                 <div id="steps">
                     <form id="formElem" name="formElem" action="/index" method="post">
                       {{range .}}
@@ -68,18 +80,6 @@
                             </p>
                         </fieldset>
                     </form>
-                </div>
-                <div id="navigation" style="display:none;">
-                    <ul>
-                      {{range .}}
-                      <li>
-                          <a href="#">App...</a>
-                      </li>
-                      {{end}}
-						           <li>
-                          <a href="#">Migrate</a>
-                       </li>
-                    </ul>
                 </div>
             </div>
         </div>
