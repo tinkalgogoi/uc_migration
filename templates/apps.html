@@ -38,9 +38,10 @@
                 <div id="navigation" style="display:none;">
                     <ul>
                       {{range .}}
-                      <li>
-                          <a href="#">App...</a>
-                      </li>
+                        {{$appID := idCounter2}}
+                        <li id="remove{{$appID}}_link">
+                            <a href="#">App...</a>
+                        </li>
                       {{end}}
                        <li>
                           <a href="#">Migrate</a>
@@ -52,8 +53,10 @@
                       {{range .}}
                         {{$appID := idCounter}}
                         {{$id := (index . $appID)}}
-                        <fieldset class="step">
-                            <legend>App...</legend>
+
+                        <fieldset class="step" id="remove{{$appID}}">
+                            {{$newID := (index . "newID")}}
+                            <legend>{{print $newID}}<img src="/images/delete.png" onclick="delete_view('remove{{$appID}}')" alt="Submit" style="width:20px;height:20px;float:right;margin-right:20px;" /></legend>
                               <!--the app inside a map -->
                               {{ range $key, $value := . }}
                                 {{if eq $key "source"}}
@@ -66,6 +69,7 @@
                                   </div>
                                 {{else}}{{if eq $key $appID}}
                                     <div style="display:none;">
+                                      <!-- the src env id is put here so that we can match it with newly fetch src env and replace with new env values-->
                                       <input id="username" name="{{ print $key }}" value="{{ $value }}"/>
                                     </div>
                                 {{else}}
@@ -89,4 +93,13 @@
             </div>
         </div>
     </body>
+    <script>
+  		function delete_view(id)
+  		{
+  			var view = document.getElementById(id);
+  			view.remove();
+  			var view = document.getElementById(id+"_link");
+  			view.remove();
+  		}
+	 </script>
 </html>

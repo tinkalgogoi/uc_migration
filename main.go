@@ -12,6 +12,7 @@ import (
 )
 
 var counter int
+var counter2 int
 
 func main() {
 
@@ -21,6 +22,7 @@ func main() {
 		func(w http.ResponseWriter, req *http.Request) {
 			// for next subsequent request setting counter to zero
 			counter = 0
+			counter2 = 0
 			requestedFile := req.URL.Path[1:]
 			// matching requested url with templates. Need to call the templates as ex. ip:port/index
 
@@ -44,7 +46,7 @@ func main() {
 			}
 		})
 
-	http.HandleFunc("/img/", serveResource)
+	http.HandleFunc("/images/", serveResource)
 	http.HandleFunc("/css/", serveResource)
 	http.HandleFunc("/js/", serveResource)
 
@@ -79,7 +81,7 @@ func serveResource(w http.ResponseWriter, req *http.Request) {
 }
 
 func populateTemplates() *template.Template {
-	funcs := template.FuncMap{"idCounter": idCounter}
+	funcs := template.FuncMap{"idCounter": idCounter, "idCounter2": idCounter2}
 	result := template.New("templates").Funcs(funcs)
 
 	basePath := "templates"
@@ -104,5 +106,11 @@ func populateTemplates() *template.Template {
 func idCounter() string {
 	id := "id" + strconv.Itoa(counter)
 	counter++
+	return id
+}
+
+func idCounter2() string {
+	id := "id" + strconv.Itoa(counter2)
+	counter2++
 	return id
 }
