@@ -38,7 +38,7 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 	// returns nested map where the internal maps with keys will be of type map[string]interface{}
 	// and the json arrays will be of type []interface which can be accessed through indices
 	json.Unmarshal(body, &Apps)
-	fmt.Println(Apps)
+	//fmt.Println(Apps)
 	m1 := make(map[string]interface{})
 	m2 := make(map[string]interface{})
 	var appId []interface{}
@@ -58,11 +58,12 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 			m2["target"] = tar
 			count++
 		}
+		//id is required to match with the src app
 		m2["id"+strconv.Itoa(j)] = appId[j].(string)
 		// newID is required to edit the app id
-		m2[appId[j].(string)+"newID"] = appId[j]
+		m2["newID"] = appId[j]
 		for key, value := range m1 {
-			m2[appId[j].(string)+key] = value
+			m2[key] = value
 		}
 		appsSlice = append(appsSlice, m2)
 		j++

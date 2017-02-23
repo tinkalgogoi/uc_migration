@@ -50,11 +50,12 @@
                 <div id="steps">
                     <form id="formElem" name="formElem" action="/index" method="post">
                       {{range .}}
+                        {{$appID := idCounter}}
+                        {{$id := (index . $appID)}}
                         <fieldset class="step">
                             <legend>App...</legend>
                               <!--the app inside a map -->
                               {{ range $key, $value := . }}
-                                <!--problem when we will have source n target name in apps env -->
                                 {{if eq $key "source"}}
                                   <div style="display:none;">
                                     <input id="username" name="source" value="{{ $value }}"/>
@@ -63,12 +64,16 @@
                                   <div style="display:none;">
                                     <input id="username" name="target" value="{{ $value }}"/>
                                   </div>
+                                {{else}}{{if eq $key $appID}}
+                                    <div style="display:none;">
+                                      <input id="username" name="{{ print $key }}" value="{{ $value }}"/>
+                                    </div>
                                 {{else}}
                                   <p>
                                     <label for="fill">{{ $key }}</label>
-                                    <input id="fill" name="{{ $key }}" type="text" value="{{ $value }}" AUTOCOMPLETE=OFF />
+                                    <input id="fill" name="{{ print $id $key }}" type="text" value="{{ $value }}" AUTOCOMPLETE=OFF />
                                   </p>
-                                {{end}}{{end}}
+                                {{end}}{{end}}{{end}}
                               {{ end }}
                         </fieldset>
                       {{end}}

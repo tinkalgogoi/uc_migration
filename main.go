@@ -5,20 +5,25 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"git.corvisa.com/uc/uc_migration/viewmodels"
 )
 
+var counter int
+
 func main() {
 
 	// getting the pointer to templates files or cache
 	templates := populateTemplates()
-
 	http.HandleFunc("/",
 		func(w http.ResponseWriter, req *http.Request) {
+			// for next subsequent request setting counter to zero
+			counter = 0
 			requestedFile := req.URL.Path[1:]
 			// matching requested url with templates. Need to call the templates as ex. ip:port/index
+
 			template := templates.Lookup(requestedFile + ".html")
 
 			var context interface{} = nil
@@ -30,6 +35,7 @@ func main() {
 			}
 
 			if template != nil {
+
 				// here we inject data to the template as context object
 				// we will get the data to store in viewmodel section of the project and then inject in the context object
 				template.Execute(w, context)
@@ -73,7 +79,8 @@ func serveResource(w http.ResponseWriter, req *http.Request) {
 }
 
 func populateTemplates() *template.Template {
-	result := template.New("templates")
+	funcs := template.FuncMap{"idCounter": idCounter}
+	result := template.New("templates").Funcs(funcs)
 
 	basePath := "templates"
 	templateFolder, _ := os.Open(basePath)
@@ -92,4 +99,10 @@ func populateTemplates() *template.Template {
 	result.ParseFiles(*templatePaths...)
 
 	return result
+}
+
+func idCounter() string {
+	id := "id" + strconv.Itoa(counter)
+	counter++
+	return id
 }
