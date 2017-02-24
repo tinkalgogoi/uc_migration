@@ -57,14 +57,13 @@
                         <!-- getting source and target from the 1st app -->
                         {{$src := (index . "source")}}
                         {{$tar := (index . "target")}}
-                        {{/*$length := len $src*/}}
                         {{if .source }}
                         <div style="display:none;">
                           <input id="username" name="source" value="{{ $src }}"/>
                           <input id="username" name="target" value="{{ $tar }}"/>
                         </div>
                         {{else}}
-                          <div></div>
+                          {{print ""}}
                         {{end}}
 
                         <fieldset class="step" id="remove{{$appID}}">
@@ -73,9 +72,9 @@
                               <!--the app inside a map -->
                               {{ range $key, $value := . }}
                                 {{if eq $key "source"}}
-                                  <div></div>
+                                  {{print ""}}
                                 {{else}}{{if eq $key "target"}}
-                                  <div></div>
+                                  {{print ""}}
                                 {{else}}{{if eq $key $appID}}
                                     <div style="display:none;">
                                       <!-- the src env id is put here so that we can match it with newly fetch src env and replace with new env values-->

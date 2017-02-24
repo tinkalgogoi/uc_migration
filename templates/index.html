@@ -37,7 +37,9 @@
                   <form id="formElem" name="formElem" action="/apps" method="post">
                     <fieldset class="step">
                         <legend>Select Source and Target Environment</legend>
-                        {{print .}}
+                        {{if .}}
+                          <div>{{print .}}</div>
+                        {{end}}
                         <p>
                             <label for="source">Source environment</label>
                             <input id="username" name="source" />
