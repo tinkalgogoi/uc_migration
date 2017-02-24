@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -40,7 +41,10 @@ func main() {
 
 				// here we inject data to the template as context object
 				// we will get the data to store in viewmodel section of the project and then inject in the context object
-				template.Execute(w, context)
+				err := template.Execute(w, context)
+				if err != nil {
+					fmt.Println(err)
+				}
 			} else {
 				w.WriteHeader(404)
 			}
