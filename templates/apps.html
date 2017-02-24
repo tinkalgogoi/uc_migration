@@ -40,7 +40,7 @@
                       {{range .}}
                         {{$appID := idCounter2}}
                         <li id="remove{{$appID}}_link">
-                            <a href="#">App...</a>
+                            <a href="#">{{print $appID}}</a>
                         </li>
                       {{end}}
                        <li>
@@ -54,29 +54,40 @@
                         {{$appID := idCounter}}
                         {{$id := (index . $appID)}}
 
+                        <!-- getting source and target from the 1st app -->
+                        {{$src := (index . "source")}}
+                        {{$tar := (index . "target")}}
+                        {{/*$length := len $src*/}}
+                        {{if .source }}
+                        <div style="display:none;">
+                          <input id="username" name="source" value="{{ $src }}"/>
+                          <input id="username" name="target" value="{{ $tar }}"/>
+                        </div>
+                        {{else}}
+                          <div></div>
+                        {{end}}
+
                         <fieldset class="step" id="remove{{$appID}}">
                             {{$newID := (index . "newID")}}
                             <legend>{{print $newID}}<img src="/images/delete.png" onclick="delete_view('remove{{$appID}}')" alt="Submit" style="width:20px;height:20px;float:right;margin-right:20px;" /></legend>
                               <!--the app inside a map -->
                               {{ range $key, $value := . }}
                                 {{if eq $key "source"}}
-                                  <div style="display:none;">
-                                    <input id="username" name="source" value="{{ $value }}"/>
-                                  </div>
+                                  <div></div>
                                 {{else}}{{if eq $key "target"}}
-                                  <div style="display:none;">
-                                    <input id="username" name="target" value="{{ $value }}"/>
-                                  </div>
+                                  <div></div>
                                 {{else}}{{if eq $key $appID}}
                                     <div style="display:none;">
                                       <!-- the src env id is put here so that we can match it with newly fetch src env and replace with new env values-->
                                       <input id="username" name="{{ print $key }}" value="{{ $value }}"/>
                                     </div>
                                 {{else}}
+                                <div>
                                   <p>
                                     <label for="fill">{{ $key }}</label>
                                     <input id="fill" name="{{ print $id $key }}" type="text" value="{{ $value }}" AUTOCOMPLETE=OFF />
                                   </p>
+                                </div>
                                 {{end}}{{end}}{{end}}
                               {{ end }}
                         </fieldset>
