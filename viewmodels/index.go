@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -34,31 +33,39 @@ func MigrateApps(w http.ResponseWriter, r *http.Request) interface{} {
 	var idSlices []string
 
 	modifiedApp := make(map[string]interface{})
-	i := 0
-	for {
-		// checking if id exist and getting all the ids in slices
-		if id, ok := r.Form["id"+strconv.Itoa(i)]; ok {
-			//fmt.Printf("id : %s", id) // getting 3 ids
-			idSlices = append(idSlices, strings.Join(id, ""))
-			// search for app attributes having id as 1st substring
-			for k, v := range r.Form { // code can be refactored, right now matching every key for each id
-				if len(k) >= len(idSlices[i]) { // gives error while matching if key length is less than id
-					// matching id with map keys
-					if idSlices[i] == k[:len(idSlices[i])] {
-						// getting other part of env attribute string which doesn't match with id
-						modifiedApp[k[len(idSlices[i]):len(k)]] = strings.Join(v, "") // converting v slice to string or else it will be marathon error since it will look like json array []
-					}
-				}
-			}
-			modifiedApp["id"] = idSlices[i]
-			// got the  map of app and putting it in slices
-			newAppsSlice = append(newAppsSlice, modifiedApp)
-			modifiedApp = make(map[string]interface{})
-			i++
-		} else {
-			break
+
+	// getting all the app ids from the Form
+	var keyIDs []string
+	for kid := range r.Form {
+		if strings.HasPrefix(kid, "id") {
+			keyIDs = append(keyIDs, kid)
 		}
 	}
+
+	for i, keyID := range keyIDs {
+
+		id := r.Form[keyID]
+		//fmt.Printf("id : %s", id)
+		idSlices = append(idSlices, strings.Join(id, ""))
+		// search for app attributes having id as 1st substring
+		for k, v := range r.Form { // code can be refactored, right now matching every key for each id
+			if len(k) >= len(idSlices[i]) { // gives error while matching if key length is less than id
+				// matching id with map keys
+				if idSlices[i] == k[:len(idSlices[i])] {
+					// getting other part of env attribute string which doesn't match with id
+					modifiedApp[k[len(idSlices[i]):len(k)]] = strings.Join(v, "") // converting v slice to string or else it will be marathon error since it will look like json array []
+				}
+			}
+		}
+		modifiedApp["id"] = idSlices[i]
+		// got the  map of app and putting it in slices
+		newAppsSlice = append(newAppsSlice, modifiedApp)
+		modifiedApp = make(map[string]interface{})
+
+	}
+
+	fmt.Println("newAppsSlice :")
+	fmt.Println(newAppsSlice)
 
 	getOldApps()
 	createNewApp()
@@ -112,7 +119,8 @@ func createNewApp() map[string]interface{} {
 		// remove attributes causing problem on posting maarathon app
 		deleteKey(oldAppsSlice, "apps", i, "version")
 	}
-	//fmt.Println(oldAppsSlice)
+	fmt.Println("oldAppsSlice with new env values")
+	fmt.Println(oldAppsSlice)
 	return oldAppsSlice // this old map is now populated with new values
 }
 
@@ -124,8 +132,8 @@ func putApp() interface{} {
 	if err != nil {
 		fmt.Printf("err : %s", err)
 	}
-
-	//fmt.Println(string(appJson))
+	fmt.Println("The json :")
+	fmt.Println(string(appJson))
 	//resp, err := http.Post(marathonURL, "application/json", bytes.NewBuffer(appJson))
 	client := &http.Client{}
 	request, err := http.NewRequest("PUT", marathonURL, bytes.NewBuffer(appJson))
