@@ -6,9 +6,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 var Apps map[string]interface{}
+var AppsTarget map[string]interface{}
+
+var srcAppsSlice []map[string]interface{}
+var tarAppsSlice []map[string]interface{}
 
 func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} {
 	// marathon ip also have to be imported to html form
@@ -22,6 +27,8 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 
 	src := req.PostFormValue("source")
 	tar := req.PostFormValue("target")
+
+	// getting app json from src
 	// put some strict matching query for the rest call
 	marathonURL := marathonIP + "?id=" + src
 	res, err := http.Get(marathonURL)
@@ -39,17 +46,75 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 	// and the json arrays will be of type []interface which can be accessed through indices
 	json.Unmarshal(body, &Apps)
 	//fmt.Println(Apps)
+
+	// getting app json from tar
+	marathonURL = marathonIP + "?id=" + tar
+	res, err = http.Get(marathonURL)
+	if err != nil {
+		fmt.Printf("marathonURL err : %s", err)
+	}
+
+	body, err = ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		fmt.Printf("err : %s", err)
+	}
+	json.Unmarshal(body, &AppsTarget)
+
+	srcAppsSlice := getAppsEnv(src, tar, "src", Apps)
+	fmt.Println("srcAppsSlice", srcAppsSlice)
+	tarAppsSlice := getAppsEnv(src, tar, "tar", AppsTarget)
+	fmt.Println("tarAppsSlice", tarAppsSlice)
+
+	appsSlice := populateEnv(srcAppsSlice, tarAppsSlice)
+
+	return appsSlice
+
+}
+
+// populating target environment available env's to source environment env's
+func populateEnv(srcSlice []map[string]interface{}, tarSlice []map[string]interface{}) []map[string]interface{} {
+
+	return srcSlice
+}
+
+func appNamebetween(value string, a string, b string) string {
+	// Get substring between two strings.
+	posFirst := strings.Index(value, a)
+	if posFirst == -1 {
+		return ""
+	}
+	posLast := strings.Index(value, b)
+	if posLast == -1 {
+		return ""
+	}
+	posFirstAdjusted := posFirst + len(a)
+	if posFirstAdjusted >= posLast {
+		return ""
+	}
+	return value[posFirstAdjusted:posLast]
+}
+
+// get the environments of a app with id embedded in each app map
+func getAppsEnv(src string, tar string, appType string, apps map[string]interface{}) []map[string]interface{} {
 	m1 := make(map[string]interface{})
 	m2 := make(map[string]interface{})
 	var appId []interface{}
 	var appsSlice []map[string]interface{}
 	var count int
 	j := 0
-	for i := range Apps["apps"].([]interface{}) {
+	for i := range apps["apps"].([]interface{}) {
 		// Getting each app as map at the apps env field
-		m1 = get(Apps, "apps", i, "env").(map[string]interface{})
+		m1 = get(apps, "apps", i, "env").(map[string]interface{})
 		// what if env has also key as id
-		appId = append(appId, get(Apps, "apps", i, "id"))
+		appId = append(appId, get(apps, "apps", i, "id"))
+
+		// app name of the application between the application environment type ex. /dev/uc and api substring
+		if appType == "src" {
+			m2["appName"] = appNamebetween(appId[j].(string), src, "/api")
+		} else if appType == "tar" {
+			m2["appName"] = appNamebetween(appId[j].(string), tar, "/api")
+		}
 
 		// creating new map of each apps with id appended n few extra stuff
 		// adding src n tar in 1st app map
