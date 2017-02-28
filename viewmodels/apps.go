@@ -109,7 +109,7 @@ func getAppsEnv(src string, tar string, appType string, apps map[string]interfac
 		// what if env has also key as id
 		appId = append(appId, get(apps, "apps", i, "id"))
 
-		// app name of the application between the application environment type ex. /dev/uc and api substring
+		// app name of the application between the application environment type ex. /dev/uc and /api substring
 		if appType == "src" {
 			m2["appName"] = appNamebetween(appId[j].(string), src, "/api")
 		} else if appType == "tar" {
