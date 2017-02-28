@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -74,7 +75,24 @@ func GetApps(w http.ResponseWriter, req *http.Request) []map[string]interface{} 
 
 // populating target environment available env's to source environment env's
 func populateEnv(srcSlice []map[string]interface{}, tarSlice []map[string]interface{}) []map[string]interface{} {
+	for i := range srcSlice {
+		for j := range tarSlice { // refactor the code where once checked, it shouldn't again check the app
 
+			if srcSlice[i]["appName"] == tarSlice[j]["appName"] {
+				for key, value := range tarSlice[j] {
+					match, _ := regexp.MatchString("^id([0-9]+)$", key)
+					if match {
+						// not adding the id.. key of target application in modified app as we need the src id (tar id will be in newID key)
+						continue
+					} else {
+						srcSlice[i][key] = value
+					}
+				}
+
+			}
+		}
+
+	}
 	return srcSlice
 }
 
