@@ -124,7 +124,6 @@ func getAppsEnv(src string, tar string, appType string, apps map[string]interfac
 	for i := range apps["apps"].([]interface{}) {
 		// Getting each app as map at the apps env field
 		m1 = get(apps, "apps", i, "env").(map[string]interface{})
-		// what if env has also key as id
 		appId = append(appId, get(apps, "apps", i, "id"))
 
 		// app name of the application between the application environment type ex. /dev/uc and /api substring
