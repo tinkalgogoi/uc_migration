@@ -96,8 +96,8 @@ func getOldApps() map[string]interface{} {
 func createNewApp() map[string]interface{} {
 	//m1 := make(map[string]interface{})
 	var appId interface{}
-	for i := range oldAppsSlice["apps"].([]interface{}) { // iterating all apps because need to remove few attributes ex. versions etc
-
+	var appModifiedFlag bool
+	for i := 0; i < len(oldAppsSlice["apps"].([]interface{})); i++ { // iterating all apps because need to remove few attributes ex. versions etc and unrequired apps
 		// what if env has also key as id
 		appId = get(oldAppsSlice, "apps", i, "id")
 
@@ -105,6 +105,7 @@ func createNewApp() map[string]interface{} {
 		for j := range newAppsSlice { // code can be refactored as we are matching each app with modified app
 			// matching the old ids of both app
 			if newAppsSlice[j]["id"] == appId {
+				appModifiedFlag = true
 				//setting the new id to the particular app id field of oldAppsSlice
 				set(newAppsSlice[j]["newID"], oldAppsSlice, "apps", i, "id")
 				// deleting unwanted id and oldID values from app env of New app before merging to oldAppsSlice
@@ -118,6 +119,13 @@ func createNewApp() map[string]interface{} {
 
 		// remove attributes causing problem on posting maarathon app
 		deleteKey(oldAppsSlice, "apps", i, "version")
+
+		if !appModifiedFlag {
+			// delete the unrequired app
+			oldAppsSlice["apps"] = append(oldAppsSlice["apps"].([]interface{})[:i], oldAppsSlice["apps"].([]interface{})[i+1:]...)
+			i = i - 1
+			appModifiedFlag = false
+		}
 	}
 	fmt.Println("oldAppsSlice with new env values")
 	fmt.Println(oldAppsSlice)
