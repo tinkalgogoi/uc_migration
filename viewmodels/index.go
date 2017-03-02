@@ -114,18 +114,20 @@ func createNewApp() map[string]interface{} {
 
 				// setting my new evrionment against old environment
 				set(newAppsSlice[j], oldAppsSlice, "apps", i, "env")
+				break
 			}
 		}
 
 		// remove attributes causing problem on posting maarathon app
 		deleteKey(oldAppsSlice, "apps", i, "version")
 
+		// if not modified app i.e false then delete it
 		if !appModifiedFlag {
 			// delete the unrequired app
 			oldAppsSlice["apps"] = append(oldAppsSlice["apps"].([]interface{})[:i], oldAppsSlice["apps"].([]interface{})[i+1:]...)
-			i = i - 1
-			appModifiedFlag = false
+			i = i - 1 // Since we just deleted the app, we must redo that index
 		}
+		appModifiedFlag = false
 	}
 	fmt.Println("oldAppsSlice with new env values")
 	fmt.Println(oldAppsSlice)
